@@ -1,0 +1,11 @@
+lib: [
+  "_build/install/default/lib/pa2/META"
+  "_build/install/default/lib/pa2/dune-package"
+  "_build/install/default/lib/pa2/opam"
+]
+bin: [
+  "_build/install/default/bin/pa2"
+]
+doc: [
+  "_build/install/default/doc/pa2/README.md"
+]

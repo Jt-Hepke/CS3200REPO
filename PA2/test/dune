@@ -1,0 +1,3 @@
+(test
+ (name pa2)
+ (libraries alcotest pa2 qcheck qcheck-alcotest yojson str))

@@ -1,0 +1,6 @@
+[33mASSERT[0m even 0 = true
+[33mASSERT[0m odd 0 = false
+[33mASSERT[0m even 1 = false
+[33mASSERT[0m odd 1 = true
+[33mASSERT[0m even 2 = true
+[33mASSERT[0m odd 2 = false

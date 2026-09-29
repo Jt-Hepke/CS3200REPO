@@ -1,0 +1,3 @@
+(library
+ (name pa2)
+ (libraries alcotest qcheck qcheck-alcotest))
