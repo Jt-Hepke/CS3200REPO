@@ -1,0 +1,139 @@
+flatten recursively
+
+let rec flatten lists =              (* Define a recursive function *)
+  match lists with                   (* Check the list *)
+  | [] -> []                         (* Empty list gives empty list *)
+  | first :: rest -> first @ flatten rest  (* Join first list with the rest *)
+
+
+isort recursively
+
+let rec insert x numbers =           (* Insert x into a sorted list *)
+  match numbers with                 (* Check the list *)
+  | [] -> [x]                        (* Empty list: x is the only item *)
+  | first :: rest ->                 (* Separate first and rest *)
+      if x <= first then             (* Does x belong before first? *)
+        x :: numbers                 (* Put x at the beginning *)
+      else                           (* Otherwise *)
+        first :: insert x rest       (* Keep first and insert into rest *)
+
+let rec isort numbers =              (* Define insertion sort *)
+  match numbers with                 (* Check the list *)
+  | [] -> []                         (* Empty list is already sorted *)
+  | first :: rest ->                 (* Take the first number *)
+      insert first (isort rest)      (* Sort rest, then insert first *)
+
+
+Peano numbers
+type nat =
+  | O
+  | S of nat
+
+Implement plus
+let rec plus a b =                 (* Add two Peano numbers *)
+  match a with                     (* Check the first number *)
+  | O -> b                         (* Zero plus b equals b *)
+  | S rest -> S (plus rest b)      (* Add one successor *)
+
+Implement mult
+let rec mult a b =                  (* Multiply two Peano numbers *)
+  match a with                      (* Check the first number *)
+  | O -> O                          (* Zero times b is zero *)
+  | S rest -> plus b (mult rest b)  (* Add b one more time *)
+
+Question 3 List.filter. List.fold_left
+let total_combat_cost items =                         (* Define the function *)
+  let combat_items = List.filter (fun (_, cost, is_combat) -> is_combat) items in (* Keep combat items *)
+  List.fold_left (fun total (_, cost, _) -> total + cost) 0 combat_items (* Add their costs *)
+
+
+Question 4
+define tree
+type 'a tree =                 (* Define a tree holding values of type 'a *)
+  | Empty                      (* An empty tree *)
+  | Node of 'a tree * 'a * 'a tree (* Left subtree, value, right subtree *)
+
+Implement elem
+let rec elem x tree =                    (* Check whether x is in the tree *)
+  match tree with                        (* Check the tree *)
+  | Empty -> false                       (* An empty tree has no values *)
+  | Node (left, value, right) ->         (* Get both subtrees and the value *)
+      if x = value then true             (* Found x *)
+      else if x < value then elem x left (* Smaller: search left *)
+      else elem x right                  (* Larger: search right *)
+
+Implement Insert 
+let rec insert x tree =                      (* Insert x into the tree *)
+  match tree with                            (* Check the tree *)
+  | Empty -> Node (Empty, x, Empty)          (* Create a new node *)
+  | Node (left, value, right) ->             (* Read the current node *)
+      if x < value then                      (* x belongs on the left *)
+        Node (insert x left, value, right)   (* Insert into left subtree *)
+      else if x > value then                 (* x belongs on the right *)
+        Node (left, value, insert x right)   (* Insert into right subtree *)
+      else tree                              (* Duplicate: do not insert *)
+
+Invariant checker
+let is_bst tree =                                      (* Check the BST invariant *)
+  let rec check lower upper tree =                     (* Check a subtree within bounds *)
+    match tree with                                    (* Check the current tree *)
+    | Empty -> true                                    (* Empty trees are valid *)
+    | Node (left, value, right) ->                     (* Read the node *)
+        let above_lower =                              (* Check lower bound *)
+          match lower with                             (* Is there a lower bound? *)
+          | None -> true                               (* No lower bound *)
+          | Some low -> value > low                    (* Must be strictly greater *)
+        in
+        let below_upper =                              (* Check upper bound *)
+          match upper with                             (* Is there an upper bound? *)
+          | None -> true                               (* No upper bound *)
+          | Some high -> value < high                  (* Must be strictly smaller *)
+        in
+        above_lower && below_upper                     (* Both bounds must hold *)
+        && check lower (Some value) left               (* Check left subtree *)
+        && check (Some value) upper right              (* Check right subtree *)
+  in
+  check None None tree                                 (* Start with no bounds *)
+
+
+  Question 5
+  implement first_of
+  let rec first_of rules input =             (* Try rules in order *)
+  match rules with                         (* Check the list of rules *)
+  | [] -> None                             (* No rules left: no result *)
+  | rule :: rest ->                        (* Get the first rule *)
+      match rule input with                (* Apply the rule to the input *)
+      | Some result -> Some result         (* Success: return the result *)
+      | None -> first_of rest input        (* Failure: try the next rule *)
+
+
+Ounit tests
+open OUnit2                                           (* Import OUnit *)
+
+let positive x =                                     (* Define the first rule *)
+  if x > 0 then Some "positive" else None            (* Check if positive *)
+
+let even x =                                         (* Define the second rule *)
+  if x mod 2 = 0 then Some "even" else None          (* Check if even *)
+
+let tests =                                          (* Create the test suite *)
+  "first_of tests" >::: [                            (* Name the suite *)
+    "empty rules" >:: (fun _ ->                      (* Test empty input *)
+      assert_equal None (first_of [] 5));            (* No rules means None *)
+
+    "first rule succeeds" >:: (fun _ ->              (* Test first success *)
+      assert_equal (Some "positive")                 (* Expected result *)
+        (first_of [positive; even] 4));               (* Actual result *)
+
+    "second rule succeeds" >:: (fun _ ->             (* Test second success *)
+      assert_equal (Some "even")                     (* Expected result *)
+        (first_of [positive; even] (-2)));            (* Actual result *)
+
+    "no rules succeed" >:: (fun _ ->                 (* Test total failure *)
+      assert_equal None                              (* Expected result *)
+        (first_of [positive] 0));                    (* Actual result *)
+  ]
+
+let () = run_test_tt_main tests                      (* Run all tests *)
+
+(*Write me a function to reverse a list*)
